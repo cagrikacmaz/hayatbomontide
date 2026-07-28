@@ -155,7 +155,7 @@
   box-shadow: inset 0 0 0 1px var(--ink);
 }
 
-.access-form button {
+.access-form__row button {
   min-width: 144px;
   height: 56px;
   display: inline-flex;
@@ -173,9 +173,74 @@
   cursor: pointer;
 }
 
-.access-form button:disabled {
+.access-form__row button:disabled {
   cursor: wait;
   opacity: 0.72;
+}
+
+.access-keypad {
+  display: none;
+}
+
+.access-code {
+  height: 54px;
+  display: grid;
+  grid-template-columns: repeat(4, 13px);
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(18, 19, 16, 0.26);
+}
+
+.access-code span {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(18, 19, 16, 0.34);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.access-code span.is-filled {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.access-keypad__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.access-keypad__grid button {
+  min-width: 0;
+  height: 47px;
+  padding: 0;
+  border: 1px solid rgba(18, 19, 16, 0.2);
+  background: rgba(255, 255, 255, 0.38);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.access-keypad__grid .access-keypad__utility {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.access-keypad__grid .access-keypad__submit {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: white;
+}
+
+.access-keypad__grid button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
 }
 
 .access-form__error {
@@ -230,7 +295,15 @@
     grid-template-columns: 1fr;
   }
 
-  .access-form button {
+  .access-form__desktop {
+    display: none;
+  }
+
+  .access-keypad {
+    display: block;
+  }
+
+  .access-form__row button {
     width: 100%;
   }
 
@@ -249,6 +322,9 @@ html {
   max-width: 100%;
   overflow-x: hidden;
   overscroll-behavior-x: none;
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -264,6 +340,7 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   overscroll-behavior-x: none;
+  touch-action: pan-y;
 }
 
 #root {
@@ -271,6 +348,14 @@ body {
   max-width: 100%;
   overflow-x: hidden;
   overflow-x: clip;
+  touch-action: pan-y;
+}
+
+main,
+section,
+header,
+footer {
+  max-width: 100%;
 }
 
 body.menu-open,
@@ -295,6 +380,7 @@ a {
 button,
 a[href] {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 button:focus-visible,
@@ -2503,26 +2589,19 @@ h2 {
   }
 
   .brand-directory-grid {
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: min(78vw, 320px);
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
     gap: 1px;
-    margin: 52px -18px 0;
-    padding-inline: 18px;
-    overflow-x: auto;
+    margin: 52px 0 0;
+    padding-inline: 0;
+    overflow: hidden;
     border-inline: 0;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-
-  .brand-directory-grid::-webkit-scrollbar {
-    display: none;
   }
 
   .directory-card {
     min-height: 270px;
     padding: 24px;
-    scroll-snap-align: start;
   }
 
   .directory-card > p {
@@ -2562,8 +2641,10 @@ h2 {
   }
 
   .event-filters {
-    margin: 50px -18px 42px;
-    padding-inline: 18px;
+    flex-wrap: wrap;
+    margin: 50px 0 42px;
+    padding-inline: 0;
+    overflow: visible;
   }
 
   .timeline-labels {
@@ -2657,7 +2738,8 @@ h2 {
   }
 
   .event-drawer {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
   }
 
   .drawer-image {

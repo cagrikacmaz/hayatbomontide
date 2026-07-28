@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useRef, useState } from "react";
+import { FormEvent, ReactNode, useState } from "react";
 
 const SESSION_KEY = "bomonti-preview-access";
 const ACCESS_SALT = "bomonti-izmir-2026:";
@@ -19,7 +19,16 @@ export function AccessGate({ children }: { children: ReactNode }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isChecking, setIsChecking] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  function enterDigit(digit: string) {
+    setError("");
+    setPassword((current) => `${current}${digit}`.slice(0, 4));
+  }
+
+  function deleteDigit() {
+    setError("");
+    setPassword((current) => current.slice(0, -1));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,7 +46,6 @@ export function AccessGate({ children }: { children: ReactNode }) {
 
       setPassword("");
       setError("Şifreyi kontrol edip yeniden deneyin.");
-      window.setTimeout(() => inputRef.current?.focus(), 0);
     } finally {
       setIsChecking(false);
     }
@@ -59,25 +67,79 @@ export function AccessGate({ children }: { children: ReactNode }) {
           Bu sunum kontrollü erişime açıktır. Devam etmek için şifrenizi girin.
         </p>
         <form className="access-form" onSubmit={handleSubmit}>
-          <label htmlFor="access-password">Şifre</label>
-          <div className="access-form__row">
-            <input
-              ref={inputRef}
-              id="access-password"
-              name="password"
-              type="password"
-              inputMode="numeric"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+          <div className="access-form__desktop">
+            <label htmlFor="access-password">Şifre</label>
+            <div className="access-form__row">
+              <input
+                id="access-password"
+                name="password"
+                type="password"
+                inputMode="numeric"
+                autoComplete="current-password"
+                maxLength={4}
+                value={password}
+                onChange={(event) => setPassword(event.target.value.replace(/\D/g, "").slice(0, 4))}
+                aria-describedby={error ? "access-error" : undefined}
+                required
+              />
+              <button type="submit" disabled={isChecking}>
+                {isChecking ? "Kontrol ediliyor" : "Giriş"}
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </div>
+          <div className="access-keypad">
+            <div
+              className="access-code"
+              role="textbox"
+              aria-label="Şifre"
+              aria-readonly="true"
               aria-describedby={error ? "access-error" : undefined}
-              autoFocus
-              required
-            />
-            <button type="submit" disabled={isChecking}>
-              {isChecking ? "Kontrol ediliyor" : "Giriş"}
-              <span aria-hidden="true">↗</span>
-            </button>
+            >
+              {[0, 1, 2, 3].map((position) => (
+                <span
+                  key={position}
+                  className={position < password.length ? "is-filled" : ""}
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+            <div className="access-keypad__grid" aria-label="Sayısal şifre tuşları">
+              {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
+                <button
+                  key={digit}
+                  type="button"
+                  className="access-keypad__digit"
+                  onClick={() => enterDigit(digit)}
+                  aria-label={`${digit} rakamı`}
+                >
+                  {digit}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="access-keypad__utility"
+                onClick={deleteDigit}
+                aria-label="Son rakamı sil"
+              >
+                Sil
+              </button>
+              <button
+                type="button"
+                className="access-keypad__digit"
+                onClick={() => enterDigit("0")}
+                aria-label="0 rakamı"
+              >
+                0
+              </button>
+              <button
+                type="submit"
+                className="access-keypad__utility access-keypad__submit"
+                disabled={isChecking || password.length !== 4}
+              >
+                Giriş
+              </button>
+            </div>
           </div>
           <p
             id="access-error"
